@@ -5,3 +5,4 @@ tensorflow-gpu==2.1.0
 tensorflow_probability==0.9
 scikit-learn
 rdp
+click

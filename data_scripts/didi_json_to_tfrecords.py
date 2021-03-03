@@ -9,8 +9,10 @@ import contextlib
 import logging
 import click
 import json
+
 import os
 import random
+from tqdm import tqdm
 import tensorflow as tf
 
 import numpy as np
@@ -207,8 +209,8 @@ def main(data_dir, log_level):
       i = 0
       counts = collections.defaultdict(int)
       with create_tfrecord_writers(os.path.join(data_dir), json_file.split(".")[0], NUM_TFRECORD_SHARDS) as writers:
-        with open(os.path.join(data_dir, json_file)) as f:
-          for line in f:
+        with open(os.path.join(data_dir, json_file), 'r') as f:
+          for line in tqdm(f.readlines()):
             ink = json.loads(line)
 
             # Randomly (but in reproducible way) define training,validation and test

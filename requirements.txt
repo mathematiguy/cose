@@ -6,3 +6,4 @@ tensorflow_probability==0.9
 scikit-learn
 rdp
 click
+tqdm

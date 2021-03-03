@@ -21,7 +21,7 @@ from rdp import rdp
 
 def split_and_pad_strokes(stroke_list):
   max_len = np.array([len(stroke[0]) for stroke in stroke_list]).max()
-  
+
   strokes = []
   stroke_lengths = []
   for stroke in stroke_list:
@@ -33,7 +33,7 @@ def split_and_pad_strokes(stroke_list):
     padded_stroke_with_pen[0, stroke_len - 1, 3] = 1
     strokes.append(padded_stroke_with_pen)
     stroke_lengths.append(stroke_len)
-  
+
   all_strokes = np.concatenate(strokes, axis=0).astype(float)  # (num_strokes, max_len, 4)
   all_stroke_lengths = np.array(stroke_lengths).astype(int)
   return all_strokes, all_stroke_lengths
@@ -68,7 +68,7 @@ def ink_to_tfexample(ink, dot=None):
       int64_list=tf.train.Int64List(value=all_strokes.shape))
   features["num_strokes"] = tf.train.Feature(
       int64_list=tf.train.Int64List(value=[len(ink["drawing"])]))
-  
+
   if "rdp_ink" in ink:
     rdp_all_strokes, rdp_all_stroke_lengths = split_and_pad_strokes(ink["rdp_ink"])
     features["rdp_ink"] = tf.train.Feature(
@@ -79,7 +79,7 @@ def ink_to_tfexample(ink, dot=None):
         int64_list=tf.train.Int64List(value=rdp_all_strokes.shape))
     features["rdp_num_strokes"] = tf.train.Feature(
         int64_list=tf.train.Int64List(value=[len(ink["rdp_ink"])]))
-  
+
   example = tf.train.Example(features=tf.train.Features(feature=features))
   return example
 

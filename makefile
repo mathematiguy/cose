@@ -7,7 +7,15 @@ GID ?= $(shell id -g)
 DOCKER_ARGS ?= 
 GIT_TAG ?= $(shell git log --oneline | head -n1 | awk '{print $$1}')
 
-.PHONY: jupyter docker docker-push docker-pull enter enter-root
+DATA_DIR ?= data
+EXPERIMENT_DIR ?= experiments
+EVAL_DIR ?= eval
+LOG_LEVEL ?= INFO
+
+.PHONY: data jupyter docker docker-push docker-pull enter enter-root
+
+data:
+	$(RUN) python3 data_scripts/didi_json_to_tfrecords.py --data_dir $(DATA_DIR) --log_level $(LOG_LEVEL)
 
 JUPYTER_PASSWORD ?= jupyter
 JUPYTER_PORT ?= 8888

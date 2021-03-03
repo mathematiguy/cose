@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
+FROM tensorflow/tensorflow:2.1.0-gpu
 
 # Use New Zealand mirrors
 RUN sed -i 's/archive/nz.archive/' /etc/apt/sources.list

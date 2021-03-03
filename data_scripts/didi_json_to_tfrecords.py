@@ -6,6 +6,8 @@ well.
 """
 import collections
 import contextlib
+import logging
+import click
 import json
 import os
 import random
@@ -13,18 +15,6 @@ import tensorflow as tf
 
 import numpy as np
 from rdp import rdp
-
-# Setup and settings.
-DATA_DIR = None  # TODO: Set this path.
-if DATA_DIR is None and "COSE_DATA_DIR" in os.environ:
-  DATA_DIR = os.path.join(os.environ["COSE_DATA_DIR"], "didi_wo_text/")
-else:
-  raise Exception("Data path must be set")
-
-# JSON_FILES=["full_raw_cat.ndjson"]
-# JSON_FILES=["full_raw_elephant.ndjson"]
-JSON_FILES=["diagrams_wo_text_20200131.ndjson"]
-NUM_TFRECORD_SHARDS = 10
 
 
 def split_and_pad_strokes(stroke_list):
@@ -198,43 +188,68 @@ def didi_preprocess(raw_ink, timestep=20):
   return raw_ink
 
 
-for json_file in JSON_FILES:
-  i = 0
-  counts = collections.defaultdict(int)
-  with create_tfrecord_writers(os.path.join(DATA_DIR), json_file.split(".")[0], NUM_TFRECORD_SHARDS) as writers:
-    with open(os.path.join(DATA_DIR, json_file)) as f:
-      for line in f:
-        ink = json.loads(line)
-        
-        # Randomly (but in reproducible way) define training,validation and test
-        # splits if the dataset doesn't do it.
-        if "split" not in ink:
-          rng = np.random.RandomState(i)
-          prob = rng.uniform()
-          if prob < 0.75:
-            ink["split"] = "train"  # 75% training.
-          elif prob > 0.9:
-            ink["split"] = "valid"  # 10% validation.
-          else:
-            ink["split"] = "test"  # 15% test.
-        
-        if "key" not in ink:
-          ink["key"] = str(hash(str(ink["drawing"])))
-          ink["label_id"] = ink["key"]
-        
-        # Ramer resampling.
-        ink["rdp_ink"] = sketch_rnn_preprocess(ink["drawing"], rdp_epsilon=2.0)
-        ink["drawing"] = didi_preprocess(ink["drawing"], timestep=20)
-        
-        # dot = get_label_file_contents("dot", ink["label_id"])
-        dot = None
-        example = ink_to_tfexample(ink, dot)
-        
-        counts[ink["split"]] += 1
-        writers[ink["split"]][pick_output_shard(NUM_TFRECORD_SHARDS)].write(example.SerializeToString())
-        
-        i += 1
-        if i %100 == 0:
-          print("# samples ", i)
+@click.command()
+@click.option('--data_dir', default='data', help='Path to data (default: data)')
+@click.option('--log_level', default='INFO', help='Log level (default: INFO)')
+def main(data_dir, log_level):
 
-  print ("Finished writing: %s train: %i valid: %i test: %i" %(json_file, counts["train"], counts["valid"], counts["test"]))
+    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logging.basicConfig(level=log_level, format=log_fmt)
+
+    # Setup and settings.
+    if "COSE_data_dir" in os.environ:
+      data_dir = os.path.join(os.environ["COSE_DATA_DIR"], "didi_wo_text/")
+    else:
+      data_dir = os.path.join(data_dir, "didi_wo_text/")
+
+
+    for json_file in JSON_FILES:
+      i = 0
+      counts = collections.defaultdict(int)
+      with create_tfrecord_writers(os.path.join(data_dir), json_file.split(".")[0], NUM_TFRECORD_SHARDS) as writers:
+        with open(os.path.join(data_dir, json_file)) as f:
+          for line in f:
+            ink = json.loads(line)
+
+            # Randomly (but in reproducible way) define training,validation and test
+            # splits if the dataset doesn't do it.
+            if "split" not in ink:
+              rng = np.random.RandomState(i)
+              prob = rng.uniform()
+              if prob < 0.75:
+                ink["split"] = "train"  # 75% training.
+              elif prob > 0.9:
+                ink["split"] = "valid"  # 10% validation.
+              else:
+                ink["split"] = "test"  # 15% test.
+
+            if "key" not in ink:
+              ink["key"] = str(hash(str(ink["drawing"])))
+              ink["label_id"] = ink["key"]
+
+            # Ramer resampling.
+            ink["rdp_ink"] = sketch_rnn_preprocess(ink["drawing"], rdp_epsilon=2.0)
+            ink["drawing"] = didi_preprocess(ink["drawing"], timestep=20)
+
+            # dot = get_label_file_contents("dot", ink["label_id"])
+            dot = None
+            example = ink_to_tfexample(ink, dot)
+
+            counts[ink["split"]] += 1
+            writers[ink["split"]][pick_output_shard(NUM_TFRECORD_SHARDS)].write(example.SerializeToString())
+
+            i += 1
+            if i %100 == 0:
+              logging.info("# samples ", i)
+
+      logging.info ("Finished writing: %s train: %i valid: %i test: %i" %(json_file, counts["train"], counts["valid"], counts["test"]))
+
+
+if __name__ == '__main__':
+
+    # JSON_FILES=["full_raw_cat.ndjson"]
+    # JSON_FILES=["full_raw_elephant.ndjson"]
+    JSON_FILES=["diagrams_wo_text_20200131.ndjson"]
+    NUM_TFRECORD_SHARDS = 10
+
+    main()

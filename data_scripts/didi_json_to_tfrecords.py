@@ -242,7 +242,7 @@ def main(data_dir, log_level):
 
             i += 1
             if i %100 == 0:
-              logging.info("# samples ", i)
+              logging.info(f"# samples {i}")
 
       logging.info ("Finished writing: %s train: %i valid: %i test: %i" %(json_file, counts["train"], counts["valid"], counts["test"]))
 

@@ -3,11 +3,21 @@ stages:
     deps:
       - data/didi_wo_text/diagrams_wo_text_20200131.ndjson 
     cmd: >-
-      ${run} python3 data_scripts/didi_json_to_tfrecords.py --data_dir ${data_dir} --log_level ${log_level}
+      ${run} python3 data_scripts/didi_json_to_tfrecords.py
+      --data_dir ${data_dir}
+      --log_level ${log_level}
     outs:
       - ${data_dir}/didi_wo_text/test
       - ${data_dir}/didi_wo_text/training
       - ${data_dir}/didi_wo_text/validation
-    params:
-      - data_dir
-      - log_level
+  calculate_statistics:
+    deps:
+      - ${data_dir}/didi_wo_text/test
+      - ${data_dir}/didi_wo_text/training
+      - ${data_dir}/didi_wo_text/validation
+    cmd: >-
+      ${run} python3 data_scripts/calculate_data_statistics.py
+      --data_dir ${data_dir}
+      --log_level ${log_level}
+    outs:
+      - hats

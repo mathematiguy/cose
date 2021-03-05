@@ -1,3 +1,5 @@
-run: docker run  --rm -v $(pwd):/kaimahi/cose -w /kaimahi/cose -u 1000:1000 docker.dragonfly.co.nz/cose
+# Run commands in docker container
+run: docker run --rm -v $(pwd):/kaimahi/cose -w /kaimahi/cose -u 1000:1000 docker.dragonfly.co.nz/cose
+# Model parameters
 data_dir: data
 log_level: INFO

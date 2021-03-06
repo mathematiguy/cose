@@ -20,5 +20,6 @@ RUN apt install -y python3-dev python3-pip
 RUN python3 -m pip install --upgrade pip
 
 # Install python packages
+COPY . /code
 COPY requirements.txt /root/requirements.txt
 RUN pip3 install -r /root/requirements.txt

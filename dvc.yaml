@@ -20,4 +20,4 @@ stages:
       --data_dir ${data_dir}
       --log_level ${log_level}
     outs:
-      - hats
+      - ${data_dir}/didi_wo_text-stats-origin_abs_pos.npy

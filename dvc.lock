@@ -1,43 +1,44 @@
 schema: '2.0'
 stages:
   data:
-    cmd: docker run --rm -v $(pwd):/kaimahi/cose -w /kaimahi/cose -u 1000:1000 docker.dragonfly.co.nz/cose
-      python3 data_scripts/didi_json_to_tfrecords.py --data_dir data --log_level INFO
+    cmd: docker run --rm -it --gpus all -v $(pwd):/kaimahi/cose -w /kaimahi/cose -u
+      1000:1000 docker.dragonfly.co.nz/cose python3 data_scripts/didi_json_to_tfrecords.py
+      --data_dir data --log_level INFO
     deps:
     - path: data/didi_wo_text/diagrams_wo_text_20200131.ndjson
       md5: a5c1b9782278ea51241ad266c9257796
       size: 1040887970
     outs:
     - path: data/didi_wo_text/test
-      md5: 15a5c0c20de5d054f08489f59708d0a3.dir
+      md5: 3f4941356b782ff9beac16691665ed46.dir
       size: 104895429
       nfiles: 10
     - path: data/didi_wo_text/training
-      md5: fa78652778613f446f0029fe0b9c7a78.dir
+      md5: 8eaa1102c947799c99da6b90d51c87d1.dir
       size: 738667433
       nfiles: 10
     - path: data/didi_wo_text/validation
-      md5: 332ec476657351d8db46fe4bbb588c74.dir
+      md5: 592d604903ca42ff204bcdbf1f8fbce7.dir
       size: 126347027
       nfiles: 10
   calculate_statistics:
-    cmd: docker run --rm -v $(pwd):/kaimahi/cose -w /kaimahi/cose -u 1000:1000 docker.dragonfly.co.nz/cose
-      python3 data_scripts/calculate_data_statistics.py --data_dir data --log_level
-      INFO
+    cmd: docker run --rm -it --gpus all -v $(pwd):/kaimahi/cose -w /kaimahi/cose -u
+      1000:1000 docker.dragonfly.co.nz/cose python3 data_scripts/calculate_data_statistics.py
+      --data_dir data --log_level INFO
     deps:
     - path: data/didi_wo_text/test
-      md5: 15a5c0c20de5d054f08489f59708d0a3.dir
+      md5: 3f4941356b782ff9beac16691665ed46.dir
       size: 104895429
       nfiles: 10
     - path: data/didi_wo_text/training
-      md5: fa78652778613f446f0029fe0b9c7a78.dir
+      md5: 8eaa1102c947799c99da6b90d51c87d1.dir
       size: 738667433
       nfiles: 10
     - path: data/didi_wo_text/validation
-      md5: 332ec476657351d8db46fe4bbb588c74.dir
+      md5: 592d604903ca42ff204bcdbf1f8fbce7.dir
       size: 126347027
       nfiles: 10
     outs:
     - path: data/didi_wo_text/didi_wo_text-stats-origin_abs_pos.npy
-      md5: aea8c6da87f92dade944925b8b62c256
+      md5: aa875621bf5ea9c75cac1a1a2fdcf32b
       size: 899

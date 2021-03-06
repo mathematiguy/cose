@@ -16,3 +16,4 @@ experiments_quickdraw/
 projector_models/
 
 /data
+dvc.lock

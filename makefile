@@ -1,7 +1,8 @@
 DOCKER_REGISTRY := docker.dragonfly.co.nz
 REPO_NAME := $(shell basename `git rev-parse --show-toplevel` | tr '[:upper:]' '[:lower:]')
 IMAGE := $(DOCKER_REGISTRY)/$(REPO_NAME)
-RUN ?= docker run $(DOCKER_ARGS) --rm -v $$(pwd):/kaimahi/$(REPO_NAME) -w /kaimahi/$(REPO_NAME) -u $(UID):$(GID) $(IMAGE)
+HAS_DOCKER = $(shell which docker)
+RUN ?= $(if $(HAS_DOCKER), docker run $(DOCKER_ARGS) -t --rm -v $$(pwd):/code -w /code -u $(UID):$(GID) $(IMAGE))
 UID ?= $(shell id -u)
 GID ?= $(shell id -g)
 DOCKER_ARGS ?= 

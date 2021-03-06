@@ -7,4 +7,3 @@ experiment_dir: experiments
 eval_dir: eval
 experiment_id: $(date +%s)
 log_level: INFO
-

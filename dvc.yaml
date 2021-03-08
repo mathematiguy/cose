@@ -1,7 +1,7 @@
 stages:
   data:
     deps:
-      - data/didi_wo_text/diagrams_wo_text_20200131.ndjson 
+      - data/didi_wo_text/diagrams_wo_text_20200131.ndjson
     cmd: >-
       ${run} python3 data_scripts/didi_json_to_tfrecords.py
       --data_dir ${data_dir}
@@ -75,3 +75,5 @@ stages:
       --metadata_type position
       --disable_pen_loss
       --mask_encoder_pen
+    outs:
+      - ${train_model.experiment}
